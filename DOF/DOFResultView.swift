@@ -13,37 +13,37 @@ struct DOFResultView: View {
             HStack {
                 Text("In front of subject:")
                 Spacer()
-                resultValue(result.front)
+                resultValue(result.front * 100, unit: "cm")
             }
             
             HStack {
                 Text("Behind subject:")
                 Spacer()
-                resultValue(result.back)
+                resultValue(result.back * 100,  unit: "cm")
             }
             
             HStack {
                 Text("Near Limit:")
                 Spacer()
-                resultValue(result.nearLimit)
+                resultValue(result.nearLimit,  unit: "m")
             }
 
             HStack {
                 Text("Far Limit:")
                 Spacer()
-                resultValue(result.farLimit)
+                resultValue(result.farLimit,  unit: "m")
             }
 
             HStack {
                 Text("Total DOF:")
                 Spacer()
-                resultValue(result.totalDOF)
+                resultValue(result.totalDOF * 100,  unit: "cm")
             }
 
             HStack {
                 Text("Hyperfocal:")
                 Spacer()
-                resultValue(result.hyperfocalDistance)
+                resultValue(result.hyperfocalDistance,  unit: "m")
             }
         } // ────── VStack close ──────
         .padding()
@@ -53,8 +53,8 @@ struct DOFResultView: View {
 
     /// Formats a double as “xx.xx m” with two decimal places
     @ViewBuilder
-    private func resultValue(_ value: Double) -> some View {
-        Text(String(format: "%.2f m", value))
+    private func resultValue(_ value: Double, unit: String) -> some View {
+        Text(String(format: "%.2f \(unit)", value))
             .fontWeight(.semibold)
     }
 }

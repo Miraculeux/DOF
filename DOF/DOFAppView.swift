@@ -8,7 +8,7 @@ struct DOFAppView: View {
     @State private var focalLength: Double = 50.0
     @State private var sensorCropFactor: CropFactor = .fullFrame
     @State private var circleOfConfusion: Double = 0.03
-    @State private var subjectDistance: Double = 1.5
+    @State private var subjectDistance: Double = 0.5
     
     @State private var result: DOFCalculator.Result? = nil
     
@@ -35,10 +35,13 @@ struct DOFAppView: View {
                             subjectDistance: subjectDistance
                         )
                         
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+
                         result = DOFCalculator.calculate(params)
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.horizontal)
+                    
                     
                     if let result = result {
                         DOFResultView(result: result)
