@@ -10,18 +10,21 @@ struct DOFInputView: View {
     
     @FocusState private var isSubjectDistanceFocused: Bool
     
-    private var numberFormatter: NumberFormatter {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.maximumFractionDigits = 1
-        return f
+    // MARK: - Helper
+    
+    /// Generates the list of formatted f‑stop strings.
+    private var fStopOptions: [Double] {
+        FStopCalculator().formattedFStops()
     }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Camera Settings")
                 .font(.headline)
             
+            // Sensor Crop Factor Picker
             HStack { Text("Sensor Crop Factor:") }
             Picker(selection: $sensorCropFactor, label: Text(sensorCropFactor.title)) {
                 ForEach(CropFactor.allCases) { cf in
@@ -30,9 +33,16 @@ struct DOFInputView: View {
             }
             .pickerStyle(.segmented)   // you can use .menu or .wheel if preferred
             
+            // Aperture Picker
             HStack { Text("Aperture (f‑no):") }
-            Slider(value: $aperture, in: 1.4...22, step: 0.1)
-            Text(String(format: "%.1f", aperture))
+            Picker(selection: $aperture, label: Text(String(aperture))) {
+                ForEach(0..<fStopOptions.count, id: \.self) { index in
+                    Text(String(fStopOptions[index]))
+                        .tag(fStopOptions[index])
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(maxHeight: 200)
             
             HStack { Text("Focal Length (mm):") }
             Slider(value: $focalLength, in: 16...200, step: 1)
@@ -45,13 +55,6 @@ struct DOFInputView: View {
                     .keyboardType(.decimalPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .disableAutocorrection(true)
-                    .focused($isSubjectDistanceFocused)
-                    .onAppear {
-                        // Ensure keyboard appears when view appears
-                        DispatchQueue.main.async {
-                            self.isSubjectDistanceFocused = true
-                        }
-                    }
             }
             
             LabeledTextField(label: "Circle of Confusion (mm)", value: $circleOfConfusion)
