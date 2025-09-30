@@ -34,8 +34,8 @@ final class FStopCalculator {
             // Compute the aperture value for this step.
             stop = minFStop * pow(stepFactor, Double(currentStep))
             // Round to one decimal place for a clean list.
-            let rounded = round(stop * 10) / 10
-            allFStops.append(rounded)
+            // let rounded = round(stop * 10) / 10
+            allFStops.append(stop)
             currentStep += 1
         }
     }

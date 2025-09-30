@@ -7,7 +7,6 @@ struct DOFAppView: View {
     @State private var aperture: Double = 2.8
     @State private var focalLength: Double = 50.0
     @State private var sensorCropFactor: CropFactor = .fullFrame
-    @State private var circleOfConfusion: Double = 0.03
     @State private var subjectDistance: Double = 0.5
     
     @State private var result: DOFCalculator.Result? = nil
@@ -22,7 +21,6 @@ struct DOFAppView: View {
                         aperture: $aperture,
                         focalLength: $focalLength,
                         sensorCropFactor: $sensorCropFactor,
-                        circleOfConfusion: $circleOfConfusion,
                         subjectDistance: $subjectDistance
                     )
                     
@@ -30,8 +28,7 @@ struct DOFAppView: View {
                         let params = DOFCalculator.Parameters(
                             aperture: aperture,
                             focalLength: focalLength,
-                            sensorCropFactor: sensorCropFactor.rawValue,
-                            circleOfConfusion: circleOfConfusion,
+                            sensorCropFactor: sensorCropFactor,
                             subjectDistance: subjectDistance
                         )
                         

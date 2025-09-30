@@ -5,7 +5,6 @@ struct DOFInputView: View {
     @Binding var aperture: Double
     @Binding var focalLength: Double
     @Binding var sensorCropFactor: CropFactor
-    @Binding var circleOfConfusion: Double
     @Binding var subjectDistance: Double
     
     @FocusState private var isSubjectDistanceFocused: Bool
@@ -26,9 +25,9 @@ struct DOFInputView: View {
             
             // Sensor Crop Factor Picker
             HStack { Text("Sensor Crop Factor:") }
-            Picker(selection: $sensorCropFactor, label: Text(sensorCropFactor.title)) {
-                ForEach(CropFactor.allCases) { cf in
-                    Text(cf.title).tag(cf)
+            Picker(selection: $sensorCropFactor, label: Text(sensorCropFactor.rawValue)) {
+                ForEach(CropFactor.allCases, id: \.self) { cf in
+                    Text(cf.rawValue).tag(cf)
                 }
             }
             .pickerStyle(.segmented)   // you can use .menu or .wheel if preferred
@@ -37,7 +36,7 @@ struct DOFInputView: View {
             HStack { Text("Aperture (f‑no):") }
             Picker(selection: $aperture, label: Text(String(aperture))) {
                 ForEach(0..<fStopOptions.count, id: \.self) { index in
-                    Text(String(fStopOptions[index]))
+                    Text(String(format: "%.1f", fStopOptions[index]))
                         .tag(fStopOptions[index])
                 }
             }
@@ -56,8 +55,6 @@ struct DOFInputView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .disableAutocorrection(true)
             }
-            
-            LabeledTextField(label: "Circle of Confusion (mm)", value: $circleOfConfusion)
         }
         .padding()
     }

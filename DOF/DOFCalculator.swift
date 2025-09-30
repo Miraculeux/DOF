@@ -7,8 +7,7 @@ final class DOFCalculator {
     struct Parameters {
         let aperture: Double          // f‑stop (e.g. 2.8, 5.6)
         let focalLength: Double       // mm (e.g. 50)
-        let sensorCropFactor: Double  // e.g. 1.0 (full‑frame), 1.5 (APS‑C)
-        let circleOfConfusion: Double // mm (e.g. 0.03 for full‑frame)
+        let sensorCropFactor: CropFactor
         let subjectDistance: Double
     }
     
@@ -24,33 +23,62 @@ final class DOFCalculator {
     
     /// Public API – returns a `Result` for the supplied parameters
     static func calculate(_ params: Parameters) -> Result {
+        let circleOfConfusion = circleOfConfusion(cropFactor: params.sensorCropFactor)
+        
         // 1. Effective focal length (adjust for crop factor)
-        let f = params.focalLength / params.sensorCropFactor
+        // let factorLength = params.focalLength * focalLength(cropFactor: params.sensorCropFactor)
+        let factorLength = params.focalLength
         
         // 2. Hyperfocal distance (meters)
-        let H = (f * f) / (params.aperture * params.circleOfConfusion)
+        let hyperFocalDistance = (factorLength * factorLength) / (params.aperture * circleOfConfusion) + factorLength
         
         // 3. Near and far limits
         let distanceMM = params.subjectDistance * 1000
-        let near  = (distanceMM * (H - params.focalLength)) / (H + distanceMM - params.focalLength)
-        let far   = (distanceMM * (H + params.focalLength)) / (H - distanceMM + params.focalLength)
+        let near  = (distanceMM * (hyperFocalDistance - factorLength)) / (hyperFocalDistance + distanceMM - 2 * factorLength)
+        
+        var far = Double.infinity
+        if (distanceMM < hyperFocalDistance){
+            far = (distanceMM * (hyperFocalDistance - factorLength)) / (hyperFocalDistance - distanceMM)
+        }
         
         // Convert back to meters
         let nearM = near / 1000.0
-        let farM = far / 1000.0
+        let farM = far.isInfinite ? Double.infinity : far / 1000.0
         // 4. Total DOF
-        let totalDOF = farM - nearM
+        let totalDOF = farM.isInfinite ? Double.infinity : farM - nearM
         
         let front = max(0, distanceMM - near) / 1000
-        let back = max(0, far - distanceMM) / 1000
+        let back = far.isInfinite ? Double.infinity : max(0, far - distanceMM) / 1000
         
         return Result(
             nearLimit: nearM,
             farLimit: farM,
             totalDOF: totalDOF,
-            hyperfocalDistance: H / 1000,
+            hyperfocalDistance: hyperFocalDistance / 1000,
             front: front,
             back: back
         )
+    }
+    
+    static func focalLength(cropFactor: CropFactor) -> Double{
+        switch cropFactor{
+        case .fullFrame:
+            return 1.0
+        case .canonAPSC:
+            return 1.6
+        case .sonyAPSC:
+            return 1.5
+        }
+    }
+    
+    static func circleOfConfusion(cropFactor: CropFactor) -> Double{
+        switch cropFactor{
+        case .fullFrame:
+            return 0.03
+        case .canonAPSC:
+            return 0.019
+        case .sonyAPSC:
+            return 0.02
+        }
     }
 }
