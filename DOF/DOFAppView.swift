@@ -4,7 +4,7 @@ import SwiftUI
 struct DOFAppView: View {
     // MARK: - State
     
-    @State private var aperture: Double = 2.8
+    @State private var aperture: Double = 2.828427
     @State private var focalLength: Double = 50.0
     @State private var sensorCropFactor: CropFactor = .fullFrame
     @State private var subjectDistance: Double = 0.5
